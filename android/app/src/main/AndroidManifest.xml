@@ -2,7 +2,7 @@
     <application
         android:label="car_rental_admin"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/carlogo">
         <activity
             android:name=".MainActivity"
             android:exported="true"

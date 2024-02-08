@@ -20,7 +20,7 @@
         android:name="android.app.Application"
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
         android:debuggable="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/carlogo"
         android:label="car_rental_admin" >
         <activity
             android:name="com.example.car_rental_admin.MainActivity"

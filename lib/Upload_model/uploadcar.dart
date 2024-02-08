@@ -37,13 +37,13 @@ class _UploadCarScreenState extends State<UploadCarScreen> {
         MediaQuery.of(context).platformBrightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          IconButton(
-              onPressed: () {
-                FirebaseAuth.instance.signOut();
-              },
-              icon: Icon(Icons.logout)),
-        ],
+        // actions: [
+        //   IconButton(
+        //       onPressed: () {
+        //         FirebaseAuth.instance.signOut();
+        //       },
+        //       icon: Icon(Icons.logout)),
+        // ],
         centerTitle: true,
         title: Text(
           'Add A Car',

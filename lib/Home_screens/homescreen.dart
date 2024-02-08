@@ -2,6 +2,7 @@ import 'package:car_rental_admin/Home_screens/user.dart';
 import 'package:car_rental_admin/Upload_model/uploadcar.dart';
 import 'package:flutter/material.dart';
 import 'profile_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,12 +18,10 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Flex Wheel car'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search,
-                color: Colors.white), // Add color property
-            onPressed: () {
-              // Add search functionality
-            },
-          ),
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+              },
+              icon: Icon(Icons.logout)),
         ],
       ),
       drawer: Drawer(
@@ -62,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 // Add your functionality here
               },
             ),
+
             // Add more list tiles as needed
           ],
         ),
