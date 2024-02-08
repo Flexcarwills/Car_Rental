@@ -1,3 +1,4 @@
+import 'package:car_rental_admin/Home_screens/homescreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +40,8 @@ class _AuthenticationscreenState extends State<AuthScreen> {
       if (_islogin) {
         final adminCredentials = await _firebase.signInWithEmailAndPassword(
             email: _email, password: pass);
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (ctx) => const HomeScreen()));
       } else {
         final adminCredentials = await _firebase.createUserWithEmailAndPassword(
             email: _email, password: pass);

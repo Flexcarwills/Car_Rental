@@ -1,6 +1,5 @@
-import 'package:car_rental_admin/Authentication%20_Screens/auth.dart';
+import 'package:car_rental_admin/Home_screens/homescreen.dart';
 import 'package:car_rental_admin/Introduction/OnboardingScreen.dart';
-import 'package:car_rental_admin/Upload_model/uploadcar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -66,7 +65,7 @@ class AppDesign extends StatelessWidget {
             return const CircularProgressIndicator();
           }
           if (snapshot.hasData) {
-            return const UploadCarScreen();
+            return const HomeScreen();
           }
 
           return const OnboardingScreen();
@@ -77,4 +76,4 @@ class AppDesign extends StatelessWidget {
 }
 
 
-// To check the changes made by anyone then we can use git diff 
+// To check the changes made by anyone then we can use git diff and check out to roll back
