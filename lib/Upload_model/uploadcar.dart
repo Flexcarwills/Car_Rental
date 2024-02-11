@@ -1,4 +1,5 @@
 import 'package:car_rental_admin/Upload_model/data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -12,10 +13,74 @@ class UploadCarScreen extends StatefulWidget {
   }
 }
 
+final _firebase = FirebaseAuth.instance;
+
 class _UploadCarScreenState extends State<UploadCarScreen> {
+  final _formkey = GlobalKey<FormState>();
+  var _isuploading = false;
+
   var _orgname = '';
   var _carname = '';
   var _carcolor = '';
+  var _year = '';
+  var _transmissiontype = '';
+  var _fueltype = '';
+  var _seatcapacity = '';
+  var _features = [];
+  var _price = '';
+  var _ownername = '';
+  var _phonenum = '';
+
+  void _saveData() async {
+    final validate = _formkey.currentState!.validate();
+
+    if (!validate) {
+      return;
+    }
+
+    _formkey.currentState!.save();
+
+    try {
+      setState(() {
+        _isuploading = true;
+      });
+      final activeUser = FirebaseAuth.instance.currentUser!;
+
+      final userData = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(activeUser.uid)
+          .get();
+
+      await FirebaseFirestore.instance.collection('CarDeatils').add({
+        'Active_user': activeUser.uid,
+        'Organization_Name': _orgname,
+        'Car_Name': _carname,
+        'Car_Color': _carcolor,
+        'Year': _year,
+        'Transmission_Type': _transmissiontype,
+        'Fuel_type': _fueltype,
+        'Seat_capacity': _seatcapacity,
+        'Features': _features,
+        'Price': _price,
+        'Owner_Name': _ownername,
+        'Phone_number': _phonenum,
+      });
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Data Uploaded Successfullu')));
+    } on FirebaseException catch (error) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message ?? 'Uploading Failed'),
+        ),
+      );
+    }
+    setState(() {
+      _isuploading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var selectedYear = 'Select Year';
@@ -62,6 +127,7 @@ class _UploadCarScreenState extends State<UploadCarScreen> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Form(
+                key: _formkey,
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -88,10 +154,8 @@ class _UploadCarScreenState extends State<UploadCarScreen> {
                         autocorrect: false,
                         textCapitalization: TextCapitalization.none,
                         validator: (value) {
-                          if (value == null ||
-                              value.trim().isEmpty ||
-                              !value.contains('@')) {
-                            return 'Please Enter valid email address';
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Enter Organization Name';
                           }
                           return null;
                         },
@@ -120,6 +184,15 @@ class _UploadCarScreenState extends State<UploadCarScreen> {
                         keyboardType: TextInputType.text,
                         autocorrect: true,
                         textCapitalization: TextCapitalization.none,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Enter Car Name';
+                          }
+                          return null;
+                        },
+                        onSaved: (newValue) {
+                          _carname = newValue!;
+                        },
                       ),
                       // Form Field for creating the Car name input.
                       const SizedBox(
@@ -142,109 +215,145 @@ class _UploadCarScreenState extends State<UploadCarScreen> {
                         keyboardType: TextInputType.text,
                         autocorrect: false,
                         textCapitalization: TextCapitalization.none,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Enter Color';
+                          }
+                          return null;
+                        },
+                        onSaved: (newValue) {
+                          _carcolor = newValue!;
+                        },
                       ),
                       const SizedBox(
                         height: 15,
                       ),
 
                       DropdownButtonFormField<String>(
-                          decoration: const InputDecoration(
-                            suffixIcon: Padding(
-                              padding: EdgeInsets.only(top: 12.0, left: 8.0),
-                              child: FaIcon(FontAwesomeIcons.calendar),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                            labelText: 'Year',
-                            labelStyle:
-                                TextStyle(color: Colors.black, fontSize: 15),
+                        decoration: const InputDecoration(
+                          suffixIcon: Padding(
+                            padding: EdgeInsets.only(top: 12.0, left: 8.0),
+                            child: FaIcon(FontAwesomeIcons.calendar),
                           ),
-                          items: yearList
-                              .map(
-                                (itemcat) => DropdownMenuItem(
-                                  value: itemcat,
-                                  child: Text(
-                                    itemcat,
-                                    style: const TextStyle(color: Colors.black),
-                                  ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          labelText: 'Year',
+                          labelStyle:
+                              TextStyle(color: Colors.black, fontSize: 15),
+                        ),
+                        items: yearList
+                            .map(
+                              (itemcat) => DropdownMenuItem(
+                                value: itemcat,
+                                child: Text(
+                                  itemcat,
+                                  style: const TextStyle(color: Colors.black),
                                 ),
-                              )
-                              .toList(),
-                          onChanged: (item) {
-                            if (item == null) {
-                              return;
-                            }
-                            setState(() {
-                              selectedYear = item;
-                            });
-                          }),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (item) {
+                          if (item == null) {
+                            return;
+                          }
+                          setState(() {
+                            selectedYear = item;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Select a year';
+                          }
+                          return null;
+                        },
+                        onSaved: (newValue) {
+                          _year = newValue!;
+                        },
+                      ),
                       const SizedBox(
                         height: 15,
                       ),
                       // Form Field for Transmission type
                       DropdownButtonFormField<String>(
-                          decoration: const InputDecoration(
-                            suffixIcon: Padding(
-                              padding: EdgeInsets.only(top: 12.0, left: 8.0),
-                              child: FaIcon(FontAwesomeIcons.calendar),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                            labelText: 'Transmission Type',
-                            labelStyle:
-                                TextStyle(color: Colors.black, fontSize: 15),
+                        decoration: const InputDecoration(
+                          suffixIcon: Padding(
+                            padding: EdgeInsets.only(top: 12.0, left: 8.0),
+                            child: FaIcon(FontAwesomeIcons.calendar),
                           ),
-                          items: transmission
-                              .map(
-                                (item) => DropdownMenuItem(
-                                  value: item,
-                                  child: Text(
-                                    item,
-                                    style: const TextStyle(color: Colors.black),
-                                  ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          labelText: 'Transmission Type',
+                          labelStyle:
+                              TextStyle(color: Colors.black, fontSize: 15),
+                        ),
+                        items: transmission
+                            .map(
+                              (item) => DropdownMenuItem(
+                                value: item,
+                                child: Text(
+                                  item,
+                                  style: const TextStyle(color: Colors.black),
                                 ),
-                              )
-                              .toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              transtype = value!;
-                            });
-                          }),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            transtype = value!;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Select a Trasmission type';
+                          }
+                          return null;
+                        },
+                        onSaved: (newValue) {
+                          _transmissiontype = newValue!;
+                        },
+                      ),
                       const SizedBox(
                         height: 15,
                       ),
                       // Form Field for the Fuel type
                       DropdownButtonFormField(
-                          decoration: const InputDecoration(
-                            suffixIcon: Padding(
-                              padding: EdgeInsets.only(top: 12.0, left: 8.0),
-                              child: FaIcon(FontAwesomeIcons.calendar),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                            labelText: 'Fuel Type',
-                            labelStyle:
-                                TextStyle(color: Colors.black, fontSize: 15),
+                        decoration: const InputDecoration(
+                          suffixIcon: Padding(
+                            padding: EdgeInsets.only(top: 12.0, left: 8.0),
+                            child: FaIcon(FontAwesomeIcons.calendar),
                           ),
-                          items: fuelType
-                              .map((type) => DropdownMenuItem(
-                                  value: type,
-                                  child: Text(
-                                    type,
-                                    style: const TextStyle(color: Colors.black),
-                                  )))
-                              .toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              fueltype = value!;
-                            });
-                          }),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          labelText: 'Fuel Type',
+                          labelStyle:
+                              TextStyle(color: Colors.black, fontSize: 15),
+                        ),
+                        items: fuelType
+                            .map((type) => DropdownMenuItem(
+                                value: type,
+                                child: Text(
+                                  type,
+                                  style: const TextStyle(color: Colors.black),
+                                )))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            fueltype = value!;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Select a Fuel type';
+                          }
+                          return null;
+                        },
+                        onSaved: (newValue) {
+                          _fueltype = newValue!;
+                        },
+                      ),
                       const SizedBox(
                         height: 15,
                       ),
@@ -267,6 +376,15 @@ class _UploadCarScreenState extends State<UploadCarScreen> {
                         keyboardType: TextInputType.number,
                         autocorrect: true,
                         textCapitalization: TextCapitalization.none,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Enter Seating capacity';
+                          }
+                          return null;
+                        },
+                        onSaved: (newValue) {
+                          _seatcapacity = newValue!;
+                        },
                       ),
                       const SizedBox(
                         height: 15,
@@ -277,7 +395,7 @@ class _UploadCarScreenState extends State<UploadCarScreen> {
                       const Text('Features'),
                       const Divider(),
 
-                      const Features(),
+                      Features(features: _features),
 
                       // Form for inputing the Price Field
                       const SizedBox(
@@ -300,6 +418,15 @@ class _UploadCarScreenState extends State<UploadCarScreen> {
                         keyboardType: TextInputType.number,
                         autocorrect: true,
                         textCapitalization: TextCapitalization.none,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Enter price';
+                          }
+                          return null;
+                        },
+                        onSaved: (newValue) {
+                          _price = newValue!;
+                        },
                       ),
                       const SizedBox(
                         height: 15,
@@ -321,6 +448,15 @@ class _UploadCarScreenState extends State<UploadCarScreen> {
                         keyboardType: TextInputType.text,
                         autocorrect: true,
                         textCapitalization: TextCapitalization.none,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Enter owner name';
+                          }
+                          return null;
+                        },
+                        onSaved: (newValue) {
+                          _ownername = newValue!;
+                        },
                       ),
                       const SizedBox(
                         height: 15,
@@ -342,6 +478,17 @@ class _UploadCarScreenState extends State<UploadCarScreen> {
                         keyboardType: TextInputType.number,
                         autocorrect: true,
                         textCapitalization: TextCapitalization.none,
+                        validator: (value) {
+                          if (value == null ||
+                              value.trim().isEmpty ||
+                              value.trim().length < 10) {
+                            return 'Enter phone valid number';
+                          }
+                          return null;
+                        },
+                        onSaved: (newValue) {
+                          _phonenum = newValue!;
+                        },
                       ),
                     ],
                   ),
@@ -351,23 +498,25 @@ class _UploadCarScreenState extends State<UploadCarScreen> {
             const SizedBox(
               height: 30,
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: double.infinity,
-                height: 50,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: Theme.of(context).colorScheme.primary),
-                child: TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    'Submit',
-                    style: TextStyle(color: Colors.white),
+            if (_isuploading) const CircularProgressIndicator(),
+            if (!_isuploading)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  width: double.infinity,
+                  height: 50,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      color: Theme.of(context).colorScheme.primary),
+                  child: TextButton(
+                    onPressed: _saveData,
+                    child: const Text(
+                      'Submit',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),

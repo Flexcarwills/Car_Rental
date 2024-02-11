@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 FirebaseAuth.instance.signOut();
               },
-              icon: Icon(Icons.logout)),
+              icon: const Icon(Icons.logout)),
         ],
       ),
       drawer: Drawer(
@@ -74,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
               MaterialPageRoute(builder: (ctx) => const UploadCarScreen()));
         },
         // Add color property
-        backgroundColor: Color.fromARGB(255, 260, 45, 115),
+        backgroundColor: const Color.fromARGB(255, 260, 45, 115),
         child: const Icon(Icons.add,
             color: Colors.white), // Add backgroundColor property
       ),

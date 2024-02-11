@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class Features extends StatefulWidget {
-  const Features({super.key});
+  const Features({super.key, required this.features});
 
+  final features;
   @override
   State<Features> createState() => _FeaturesState();
 }
@@ -22,6 +23,7 @@ class _FeaturesState extends State<Features> {
     // Add more features as needed
   ];
   // void setDone(BuildContext context, bool? isChecked) {
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -42,6 +44,7 @@ class _FeaturesState extends State<Features> {
     setState(() {
       cbkitem.value = !cbkitem.value;
     });
+    widget.features.add(cbkitem.title);
   }
 }
 
