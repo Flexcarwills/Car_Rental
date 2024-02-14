@@ -1,3 +1,4 @@
+import 'package:car_rental_admin/Home_screens/setting.dart';
 import 'package:car_rental_admin/Home_screens/user.dart';
 import 'package:car_rental_admin/Upload_model/uploadcar.dart';
 import 'package:flutter/material.dart';
@@ -59,6 +60,8 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text('Settings'),
               onTap: () {
                 // Add your functionality here
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (ctx) => settingsScreen()));
               },
             ),
 

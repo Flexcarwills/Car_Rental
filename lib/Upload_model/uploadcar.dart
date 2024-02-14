@@ -1,8 +1,13 @@
+import 'dart:io';
+
+import 'package:car_rental_admin/Image_Screen/image_input.dart';
 import 'package:car_rental_admin/Upload_model/data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 
 class UploadCarScreen extends StatefulWidget {
   const UploadCarScreen({super.key});
@@ -18,6 +23,8 @@ final _firebase = FirebaseAuth.instance;
 class _UploadCarScreenState extends State<UploadCarScreen> {
   final _formkey = GlobalKey<FormState>();
   var _isuploading = false;
+  List<String> selectedImage = [];
+  //
 
   var _orgname = '';
   var _carname = '';
@@ -44,12 +51,20 @@ class _UploadCarScreenState extends State<UploadCarScreen> {
       setState(() {
         _isuploading = true;
       });
+
       final activeUser = FirebaseAuth.instance.currentUser!;
 
       final userData = await FirebaseFirestore.instance
           .collection('users')
           .doc(activeUser.uid)
           .get();
+
+      // final storageref = FirebaseStorage.instance
+      //     .ref()
+      //     .child('car_images/')
+      //     .child('${FirebaseAuth.instance.currentUser!.uid}.jpg');
+      // await storageref.putFile(selectedImage[0]);
+      // final imageUrl = await storageref.getDownloadURL();
 
       await FirebaseFirestore.instance.collection('CarDeatils').add({
         'Active_user': activeUser.uid,
@@ -64,7 +79,9 @@ class _UploadCarScreenState extends State<UploadCarScreen> {
         'Price': _price,
         'Owner_Name': _ownername,
         'Phone_number': _phonenum,
+        'Image_Url': selectedImage,
       });
+
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Data Uploaded Successfullu')));
@@ -495,6 +512,20 @@ class _UploadCarScreenState extends State<UploadCarScreen> {
                 ),
               ),
             ),
+            const SizedBox(
+              height: 30,
+            ),
+            const Divider(),
+            const Text(
+              'Pick Images',
+            ),
+            const Divider(),
+            ImageInput(onSelectedImage: (List<String> urls) {
+              for (var i = 0; i < urls.length; i++) {
+                selectedImage.add(urls[i].toString());
+              }
+              ;
+            }),
             const SizedBox(
               height: 30,
             ),

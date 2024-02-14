@@ -1,8 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <application
+    android:requestLegacyExternalStorage="true"
         android:label="car_rental_admin"
         android:name="${applicationName}"
         android:icon="@mipmap/carlogo">
+        
         <activity
             android:name=".MainActivity"
             android:exported="true"
